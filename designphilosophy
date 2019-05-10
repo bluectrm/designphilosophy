@@ -1,0 +1,121 @@
+Design Philosophy for BlueCTRM
+
+Summary
+1) “Simple Things Should Be Simple”
+2) ‘Hooks’ Everywhere
+3) Show Your Work
+4) Design Is Not Done Until You Have Included Reports
+5) Separate GUI Versus Raw Functionality, API For Everything.
+
+1) Simple Things Should Be Simple
+‘Simple things should be simple’ is short for the design philosophy ‘simple things should be simple and complex things should be hard’.  Or that might be changed to ‘hard things should be hard’, which sounds better.
+
+This is a general philosophy, most often used/applied for the GUI or how the user interacts with the system.  
+
+The user will want to do things that they think are simple and should be easy to do, and some designs make it hard (which is not good).  
+
+On the other hand, if the user has something hard or complex to do, then that is OK that is hard to do in the system.  By that I mean… it is a good design, or can be, if it takes more steps (‘clicks’) to do something complicated.  It may not be a good design if it takes the same clicks/effort to do something easy as to do something complicated.
+
+An example to illustrate:
+Systems will have a way to model/store forward prices, e.g., futures prices for Crude oil.  That concept may be called a term like; ‘curve’, ‘index’, ‘projection index’, ‘price curve’, ‘price index’, ‘forward price curve’, ‘forward curve’, ‘forward price index’ or some other similar name.   We’ll call this concept a ‘forward curve’ in this blog or just ‘curve’.
+
+A full system may have 100s of forward curves. The forward curves could be for things like:
+2.1) Crude Oil
+2.2) Unleaded Gas
+2.3) Power
+2.4) Natural Gas
+2.5) Gold
+2.6) Silver
+2.7) Cocoa
+Etc.
+
+For the below example, let’s assume that the system has just 10 forward curves and that the user wants to ‘shock’ (meaning change) the prices on all 10 of them.
+
+The user may want to ‘shock’ all prices up 10%.  So if Crude Oil is trading $50, then the ‘shocked’ price would go be $55.
+
+When we say ‘all prices’, we don’t just mean one value per forward curve (which would be 10 prices in total).  
+
+Instead, each forward curve may contain dozens of prices, which might be one price, a projected ‘forward’ price per month, e.g., going out 5 years.  That is 60 prices, which is 12 months * 5 years, per curve, so 600 prices.  i.e., With the possibility that no two prices are the same.  E.g., January Crude Oil might be $50 and the projected price for February might be $50.73, March might be 50.42 and so on. 
+
+Example of Design that is consistent with our Design Philosophy:
+Since we want to shock all curves up 10%, we would want to add a row on a screen, where we can pick which ‘Curves’ we want to shock.  In the curve pick-list, we might have a special value of ‘All’.  So we would just add one row, pick between ‘absolute’ shocks (e.g., up or down a specific dollar amount like $4 or -$6) or ‘relative’ shocks (e.g., up or down a particular percent like +10% or -5%) and enter the shock value, i.e., one single value (‘up 10%’) which the system would be smart enough to apply to all 600 forward curves/months.
+
+Example of a Design that is *not*consistent with our Design Philosophy:
+If a user has to go to a screen and add one curve at a time (manually).  i.e., so 10 times.  And then, for each curve, having to shock each month, meaning enter in a value per curve per month.  So instead of one ‘+10%’ as in the case above, you wind up with 600 ‘+10%’, plus the extra hassle of having to manually select each curve you want.
+
+Now onto another example.  Let’s make this a little ‘harder’, i.e., more ‘complex’.
+Instead of just one ‘shock’ values for all curves, let’s say we want to shock each curve by a separate amount, for example:
+2.1) Crude Oil +5%
+2.2) Unleaded Gas +4%
+2.3) Power +2%
+Etc.
+For this, we would want a screen where you can add 10 rows, one per curve, and set the shock values per curve.  i.e., set 10 things instead of just one, and that is OK (a good design), because ‘harder things should be harder to do’.
+
+Shocking all of the months on a forward curve by the same value is called a ‘Parallel Shock’.  (The parallel term coming from how things would look if you plotted/graphed them out.).  That has been what we have been doing in the example so far.
+
+Now let’s make the example even more complicated.  Suppose we instead wanted to shock each month on each curve by a different amount, for example:
+2.1.1) Crude Oil Jan +5%
+2.1.2) Crude Oil Feb +4.8%
+2.1.3) Crude Oil Mar +4.3%
+Etc.
+2.2.1) Unleaded Gas Jan +4%
+2.2.2) Unleaded Gas Jan +3.6%
+Etc.
+
+Then it is OK for a user to have to do more work, e.g., go to a second ‘detail level’ screen.  
+
+Side note:  There should also be a way to easily feed in shock values, especially if there are 600 of them, i.e., one per curve per month, as in the second example, meaning to automate the process.
+
+Another example:
+A system where you need to go to 10 screens to setup one new portfolio (a.k.a., trade book), e.g., e.g. one for the new name, one screen to assign to users, another screen for adding to the end-of-day batch calculations, etc.  Versus having one screen where you can consolidate the steps.  This also helps ensure that no steps are missed.
+
+2) ‘Hooks’ Everywhere
+The idea is that for everything a user can do in the GUI, there should be some ‘hook’ where system integrators can customize the behavior.  This could be with configuration or coding (a.k.a. ‘scripting’).  So, every button click, every text entry, every time a pick-list is selected, when a screen starts/closes, when a row is added or deleted.  Basically every keyboard or mouse interaction.
+
+This design philosophy also applies to behind the scenes activities.  E.g., when a trade is booked via a feed (e.g., from an exchange or internal system), market prices loaded, etc.
+
+Actions you should be able to configure or code include:
+3.1) Stop the action
+3.2) Modify the action.  E.g., for trade booking, might automatically populate a custom field.
+3.3) Modify what gets returned by the action 
+3.4) Start some unrelated action.  E.g., an e-mail gets sent when a trade is booked (e.g., of a certain kind).
+Key to these ‘hooks’ is that that they are separate from the core code of the system.  i.e., so you don’t need to modify the core code.  
+
+As an end user, the new behavior should be seamless as if it were native functionality.
+
+For each ‘hook’, it needs to be easy to:
+a) Turn on or off as needed, for changing behavior and/or debugging.
+b) See that they are being invoked.  As someone trying to debug the system, if the default behavior was changed by a ‘hook’, you need to be able to easily identify that.  (i.e., opposite from what an end user would experience, where they want things to be seamless).
+
+3) Show Your Work
+In math class, just providing the right answer may not be enough to earn full credit.  Some math teachers may require you to ‘show your work’ to get full credit.
+
+As this applies here, to the extent that there are intermediate steps in a calculation, the user and/or someone debugging things needs to be able to see the intermediate steps.
+
+Example 1:  Summary Versus Detail Level Reporting/calculations
+Sometimes I see reports that only produce a summarized version.  E.g., if you have 100 similar trades, the report might show one number for volume, a consolidate/summed value of ‘12300 units’.  If you ever have a discrepancy, it is really hard to figure out why with just a summary level report.  So every summary level report should also have a detail (e.g., trade level) report available, even if users don’t run it on a typical day.
+
+Example 2: Complicated calculations that have multiple (intermediate) steps:
+4.1) ‘VaR’ (value at risk) 
+4.2) ‘Netback’
+For a system that produced these numbers (i.e., the final numbers), there should be a way (screens or reports) to see the numerous intermediate steps along the way so as to be able to identify the root cause of any issue. 
+
+4) Design Is Not Done Until You Have Included Reports
+A respected mentor once told me, ‘if I knew what reports people wanted to see, I would have designed the system differently’. 
+
+So often when creating reports, either the raw data needed isn’t there, or it is not very convenient to get.
+
+Make sure when designing a system that you include in the design the reports that will be needed.  You could almost start with the reports and work back and say, ‘what sort of system would we need to design so as to be able to get to this report’?
+
+This has even deeper meaning if you include in ‘reports’ other things that may not technically be ‘reports’, but that work in a similar way (meaning get data and output it, potentially with formatting).  That includes:
+5.1) Any and all extracts.  E.g., CSV file extract with trade and valuation data to go to a downstream system.   This is like a ‘report’ with no formatting.
+5.2) Client invoices / monthly statements.  If the client (getting the invoice) wants to see day-by-day data, and the system only stores data at the monthly level, that is a problem.
+
+5) Separate GUI Versus Raw Functionality, API For Everything.
+Systems should have a clean separation from the GUI side of things versus the way the system works, with an API (software function call) for everything.  
+
+Examples:
+6.1) A system where you could ‘split’ a trade into two on the screen (in the GUI), e.g., to set two different settlement instructions.  Where there was no API, so could not automate it.
+6.2) A system that has a certain kind of report that is has code tied to the GUI.  E.g., push a button on the GUI and create a certain report.  The system should have an API for that.  In this example, the ‘report’ was assumed to be something based on a per-user configuration, e.g., the user selected which columns to pivot.  And we assumed that there was no API that could call into that (which is bad).  i.e., ideally, the user would want that report auto-run every day, but instead that person might need to run it manually from the GUI (in this hypothetical example). A better design would allow for an API to automatically run the same report, even including the user’s custom configuration.
+ 
+
